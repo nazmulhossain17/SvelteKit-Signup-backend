@@ -30,4 +30,27 @@ export class UserController {
       res.status(500).json({ error: "Internal Server Error" });
     }
   }
+
+  async login(req: Request, res: Response): Promise<void> {
+    try {
+      const { contact, password } = req.body;
+      const token = await userService.loginUser({ contact, password });
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Set to true if using HTTPS
+        maxAge: 3600000, // 1 hour
+      });
+
+      res.status(200).json({ message: "Login successful" });
+    } catch (error) {
+      console.error("Login error", error);
+      res.status(401).json({ error: "Invalid credentials" });
+    }
+  }
+
+  async logout(req: Request, res: Response): Promise<void> {
+    res.clearCookie("token");
+    res.status(200).json({ message: "Logout successful" });
+  }
 }
