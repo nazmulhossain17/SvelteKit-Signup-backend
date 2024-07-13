@@ -31,12 +31,22 @@ export class UserService {
     return await User.findOne({ contact });
   }
 
-  async loginUser({ contact, password }: LoginDTO): Promise<string | null> {
-    const user = await this.getUserByContact(contact);
+  async loginUser({
+    contact,
+    password,
+  }: {
+    contact: string;
+    password: string;
+  }): Promise<string> {
+    const user = await User.findOne({ contact });
     if (!user || !(await user.comparePassword(password))) {
-      throw new Error("Invalid credentials");
+      throw new Error("Invalid contact or password");
     }
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
+
+    // Create a JWT token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, {
+      expiresIn: "1h",
+    });
     return token;
   }
 }
