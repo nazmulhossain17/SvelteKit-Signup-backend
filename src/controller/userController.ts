@@ -5,23 +5,28 @@ const userService = new UserService();
 
 export class UserController {
   async signup(req: Request, res: Response): Promise<void> {
-    const { firstName, surname, contact, password, dob, gender } = req.body;
+    const { firstName, surname, emailOrMobile, password, dateOfBirth, gender } =
+      req.body;
 
     try {
-      const existingUser = await userService.getUserByContact(contact);
+      // Check if user already exists
+      const existingUser = await userService.getUserByContact(emailOrMobile);
       if (existingUser) {
         res.status(400).json({ error: "User already exists" });
         return;
       }
 
+      // Create new user
       const newUser = await userService.createUser({
         firstName,
         surname,
-        contact,
+        emailOrMobile,
         password,
-        dob,
+        dateOfBirth,
         gender,
       });
+
+      // Respond with success message and user data
       res
         .status(201)
         .json({ message: "User signed up successfully", user: newUser });
@@ -33,9 +38,10 @@ export class UserController {
 
   async login(req: Request, res: Response): Promise<void> {
     try {
-      const { contact, password } = req.body;
-      const token = await userService.loginUser({ contact, password });
+      const { emailOrMobile, password } = req.body;
+      const token = await userService.loginUser({ emailOrMobile, password });
 
+      // Set token in a cookie (optional, adjust as per your authentication strategy)
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // Set to true if using HTTPS
@@ -50,6 +56,7 @@ export class UserController {
   }
 
   async logout(req: Request, res: Response): Promise<void> {
+    // Clear token cookie on logout
     res.clearCookie("token");
     res.status(200).json({ message: "Logout successful" });
   }

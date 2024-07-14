@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs";
 export interface UserDocument extends Document {
   firstName: string;
   surname: string;
-  contact: string;
+  emailOrMobile: string;
   password: string;
-  dob: {
+  dateOfBirth: {
     day: string;
     month: string;
     year: string;
@@ -18,9 +18,9 @@ export interface UserDocument extends Document {
 const userSchema = new Schema<UserDocument>({
   firstName: { type: String, required: true },
   surname: { type: String, required: true },
-  contact: { type: String, required: true, unique: true },
+  emailOrMobile: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  dob: {
+  dateOfBirth: {
     day: { type: String, required: true },
     month: { type: String, required: true },
     year: { type: String, required: true },

@@ -1,14 +1,12 @@
 import User, { UserDocument } from "../model/User";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
-
 interface CreateUserDTO {
   firstName: string;
   surname: string;
-  contact: string;
+  emailOrMobile: string;
   password: string;
-  dob: {
+  dateOfBirth: {
     day: string;
     month: string;
     year: string;
@@ -17,7 +15,7 @@ interface CreateUserDTO {
 }
 
 interface LoginDTO {
-  contact: string;
+  emailOrMobile: string;
   password: string;
 }
 
@@ -27,20 +25,14 @@ export class UserService {
     return await user.save();
   }
 
-  async getUserByContact(contact: string): Promise<UserDocument | null> {
-    return await User.findOne({ contact });
+  async getUserByContact(emailOrMobile: string): Promise<UserDocument | null> {
+    return await User.findOne({ emailOrMobile });
   }
 
-  async loginUser({
-    contact,
-    password,
-  }: {
-    contact: string;
-    password: string;
-  }): Promise<string> {
-    const user = await User.findOne({ contact });
+  async loginUser({ emailOrMobile, password }: LoginDTO): Promise<string> {
+    const user = await User.findOne({ emailOrMobile });
     if (!user || !(await user.comparePassword(password))) {
-      throw new Error("Invalid contact or password");
+      throw new Error("Invalid email or mobile or password");
     }
 
     // Create a JWT token
